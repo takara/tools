@@ -385,4 +385,11 @@ class BookTools
     {
         return env("HOME");
     }
+
+    public static function exec(string $cmd)
+    {
+        $pwd = getcwd();
+        \Log::info(__METHOD__."():".__LINE__.":{$pwd}:{$cmd}");
+        return system($cmd);
+    }
 }

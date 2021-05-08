@@ -38,12 +38,13 @@ class rezip extends Command
      */
     public function handle()
     {
-        $paths = $this->argument("paths");
-        $tmpdir=tempnam(BookTools::getTempDirectory(), "rezip_");
+        \Log::info(__METHOD__."():".__LINE__.":");
+        $paths           = $this->argument("paths");
+        $tmpdir          = tempnam(BookTools::getTempDirectory(), "rezip_");
         $arcive_exe_path = BookTools::getSetting("arcive_exe_path", "/usr/local/bin/"); // "/cygdrive/c/windows/");
         $unzip_cmd		 = BookTools::getSetting("unzip_cmd","unzip");
         $unrar_cmd		 = BookTools::getSetting("unrar_cmd","unrar");
-        $norealdir = $this->option("norealdir");
+        $norealdir       = $this->option("norealdir");
         foreach($paths as $filename)
         {
             $uncompress=FALSE;
@@ -52,9 +53,15 @@ class rezip extends Command
             if(file_exists($tmpdir))
             {
                 //print "作業ディレクトリ残っているため、削除\n";
-                system("rm -rf '$tmpdir' > /dev/null");
-                system("mkdir '$tmpdir' > /dev/null");
+				BookTools::exec("rm -rf '$tmpdir' > /dev/null");
+				BookTools::exec("mkdir '$tmpdir' > /dev/null");
                 $tmpdir .= "/";
+            }
+            print "$filename\n";
+
+            if (file_exists($filename) === false) {
+                print " -> ファイルが存在しません\n";
+                continue;
             }
 
             /* RAR */
@@ -103,9 +110,8 @@ class rezip extends Command
             /* 解凍 */
             if($uncompresscmd)
             {
-                print "$filename\n";
                 print " ->$uncompresscmd\n";
-                system("{$uncompresscmd} > /dev/null");
+				BookTools::exec("{$uncompresscmd} > /dev/null");
                 $uncompress=TRUE;
 
                 $dh = opendir($tmpdir);
@@ -114,7 +120,7 @@ class rezip extends Command
                     if (in_array($ext, ['.wmv', '.mp4', '.mpg', '.avi', '.m4v'])) {
                         printf("動画ファイル[$file]\n");
                         $system = "mv {$tmpdir}/$file .";
-                        system($system);
+						BookTools::exec($system);
                         $uncompress=false;
                     }
                 }
@@ -123,7 +129,7 @@ class rezip extends Command
                 {
                     // UTF8へ変換
                     $system="convmv -f utf-8 -t cp932 \"{$tmpdir}\"/* --notest";
-                    system("{$system} > /dev/null 2>&1");
+					BookTools::exec("{$system} > /dev/null 2>&1");
                 }
                 print " ->rename\n";
                 BookTools::renameCode($tmpdir);
@@ -132,6 +138,7 @@ class rezip extends Command
             /* 圧縮 */
             if($uncompress)
             {
+                \Log::info(__METHOD__."():".__LINE__.":");
                 $real_dir=str_replace(array("\r","\n"),"",shell_exec("ls {$tmpdir}"));
                 if(is_dir("{$tmpdir}/$real_dir"))
                 {
@@ -161,10 +168,10 @@ class rezip extends Command
                 BookTools::deleteUnneededFile("{$deldir}");
                 $system="zip -9 -j '{$zip_filename}' '{$tmpdir}/{$real_dir}'/*";
                 print " ->$system\n";
-                system("{$system} > /dev/null");
+				BookTools::exec("{$system} > /dev/null");
                 $system="rm -rf \"{$tmpdir}\"";
                 //print "$system\n";
-                system("{$system} > /dev/null 2>&1");
+				BookTools::exec("{$system} > /dev/null 2>&1");
                 if (file_exists($zip_filename) && filesize($zip_filename)) {
                     BookTools::moveTrash($filename);
                 }

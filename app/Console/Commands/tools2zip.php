@@ -61,7 +61,7 @@ class tools2zip extends Command
                 $system="zip -9 -j \"{$zip_filename}\" \"{$directry}\"/*";
                 $system="zip -9 -j '{$zip_filename}' '{$directry}'/* > /dev/null";
                 print "{$system}\n";
-                system($system);
+				BookTools::exec($system);
             }
         }
         return 0;
