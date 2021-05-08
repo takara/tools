@@ -28,7 +28,7 @@ class BookTools
                 break;
             case "samba":
                 $system = "mv \"{$normalfilename}\" \"{$movetopath}{$normalfilename}\"";
-                system("{$system} > /dev/null");
+				static::exec("{$system} > /dev/null");
                 $ret = TRUE;
                 break;
         }
@@ -42,7 +42,7 @@ class BookTools
     {
         $fmd5 = md5_file($ffilename);
         $system = "scp \"{$ffilename}\" \"${tfilename}.\"";
-        system("{$system}");
+		static::exec("{$system}");
         list($host, $dfilename) = explode(":", $tfilename);
         $dfilename .= basename($ffilename);
         $system = "ssh qnap \"/opt/bin/php -r 'print md5_file(\\\"{$dfilename}\\\");'\"";
@@ -155,16 +155,16 @@ class BookTools
                     array_unshift($files, $file);
                 }
                 foreach ($files as $file) {
-                    if (isUnneededFile($file)) {
+                    if (static::isUnneededFile($file)) {
                         continue;
                     }
                     $ext = @array_pop(explode(".", $file));
                     $system = sprintf("mv \"{$path}/{$file}\" \"{$path}/%03d.{$ext}\"", $no++);
-                    system("{$system} > /dev/null 2>&1");
+                    static::exec("{$system} > /dev/null 2>&1");
                 }
             }
         } else {
-            print "  すでに数字のファイルがある[{$file}]\n";
+            \Log::info("  すでに数字のファイルがある[{$file}]");
         }
     }
 
@@ -216,7 +216,7 @@ class BookTools
         /* 解凍 */
         if ($uncompresscmd) {
             print " ->$uncompresscmd\n";
-            system("{$uncompresscmd} > /dev/null");
+			static::exec("{$uncompresscmd} > /dev/null");
             $uncompress = TRUE;
 
             $dh = opendir($tmpdir);
@@ -224,14 +224,14 @@ class BookTools
                 $ext = strtolower(substr($file, -4));
                 if (in_array($ext, ['.wmv', '.mp4', '.mpg', '.avi'])) {
                     $system = "mv {$tmpdir}/$file .";
-                    system($system);
+					static::exec($system);
                 }
             }
             closedir($dh);
             if (FALSE) {
                 // UTF8へ変換
                 $system = "convmv -f utf-8 -t cp932 \"{$tmpdir}\"/* --notest";
-                system("{$system} > /dev/null 2>&1");
+				static::exec("{$system} > /dev/null 2>&1");
             }
             print " ->delete\n";
             deleteUnneededFile($tmpdir);
@@ -266,7 +266,7 @@ class BookTools
         deleteUnneededFile("{$tmpdir}/{$real_dir}");
         $system = "zip -9 -j '{$zip_filename}' '{$tmpdir}/{$real_dir}'/*";
         print " ->$system\n";
-        system("{$system} > /dev/null");
+		static::exec("{$system} > /dev/null");
         deleteTempDirectory();
     }
 
@@ -276,7 +276,7 @@ class BookTools
     public static function deleteTempDirectory($tmpdir = "tmp_dir")
     {
         $system = "rm -rf \"{$tmpdir}\"";
-        system("{$system} > /dev/null 2>&1");
+		static::exec("{$system} > /dev/null 2>&1");
     }
 
     /**
