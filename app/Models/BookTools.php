@@ -10,27 +10,24 @@ class BookTools
      */
     public static function moveFile($filename, $movetopath)
     {
-        $base_moveto = getSetting("base_moveto", "//192.168.0.110/adult/未整理");
-        $move_mode = getSetting("move_mode", "samba");
+        $move_mode = static::getSetting("move_mode", "samba");
         $normalfilename = str_replace("(ipod)", "", $filename);
         switch ($move_mode) {
             case "ssh":
                 $ret = TRUE;
                 if (strpos($filename, "(ipod)") === FALSE) {
-                    $dscptarget = "${base_moveto}{$movetopath}";
+                    $dscptarget = "{$movetopath}";
                 } else {
-                    $dscptarget = "${base_moveto}{$movetopath}ipod/";
+                    $dscptarget = "{$movetopath}ipod/";
                 }
-                if (!copyFileSSH($filename, $dscptarget) === TRUE) {
+                if (!static::copyFileSSH($filename, $dscptarget) === TRUE) {
                     $ret = FALSE;
                 } else {
                     unlink($filename);
                 }
                 break;
             case "samba":
-                $system = "mv \"{$filename}\" \"{$base_moveto}{$movetopath}ipod/{$filename}\"";
-                system("{$system} > /dev/null");
-                $system = "mv \"{$normalfilename}\" \"${base_moveto}{$movetopath}{$normalfilename}\"";
+                $system = "mv \"{$normalfilename}\" \"{$movetopath}{$normalfilename}\"";
                 system("{$system} > /dev/null");
                 $ret = TRUE;
                 break;
@@ -377,5 +374,15 @@ class BookTools
             $ret = $default;
         }
         return ($ret);
+    }
+    public static function moveTrash(string $filename)
+    {
+        $home = static::getHome();
+        static::moveFile($filename, "{$home}/.Trash/");
+    }
+
+    public static function getHome() :string
+    {
+        return env("HOME");
     }
 }
