@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class ReplaceKeword
- * 
+ *
  * @property int $id
  * @property string $pattern
  * @property string|null $keywoed
@@ -20,9 +20,9 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class ReplaceKeword extends Model
+class ReplaceKeyword extends Model
 {
-	protected $table = 'replace_keword';
+	protected $table = 'replace_keyword';
 
 	protected $fillable = [
 		'pattern',

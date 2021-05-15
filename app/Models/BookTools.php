@@ -91,24 +91,14 @@ class BookTools
      */
     public static function converOutputZipFilename($filename)
     {
-        $ret = preg_replace(
-            array(
-                "/\] /",
-                "/\]_/",
-                "/\[成年コミック\]/",
-                "/\(成年コミック\)[ ]?/",
-                "/\(一般コミック\)[ ]?/",
-                "/\(同人誌\)[ ]?/",
-                "/\(Adult Manga\)[ ]?/",
-                "/\(C[0-9]+\)[ ]?/",
-                "/001\./",
-            ),
-            array(
-                "]",
-                "]",
-                "",
-            ),
-            $filename);
+        $list = ReplaceKeyword::all();
+        $pattern = [];
+        $replacement = [];
+        foreach ($list as $row) {
+            $pattern[] = "/{$row->pattern}/";
+            $replacement[] = $row->keyword;
+        }
+        $ret = preg_replace($pattern, $replacement, $filename);
         return ($ret);
     }
 

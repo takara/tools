@@ -23,7 +23,9 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 Route::get('/user', [App\Http\Controllers\admin\UserController::class, 'index'])->name('user');
 
-/*
-Route::group(['prefix'=>'user'], function () {
-    Route::get('index', 'App\\Http\Controllers\Admin\UserController@index')->name('user.index');
-});*/
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/replace_keyword', [App\Http\Controllers\admin\ReplaceKeywordController::class, 'index']);
+    Route::get('/replace_keyword/edit/{id}', [App\Http\Controllers\admin\ReplaceKeywordController::class, 'edit']);
+});
+
+

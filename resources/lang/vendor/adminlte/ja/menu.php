@@ -16,4 +16,6 @@ return [
     'important'                     => '重要',
     'warning'                       => '警告',
     'information'                   => 'インフォメーション',
+    'replace_keyword'               => '変換キーワード管理',
+    'setting'                       => '設定'
 ];

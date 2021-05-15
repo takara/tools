@@ -240,6 +240,12 @@ return [
             'url'  => 'admin/settings',
             'icon' => 'fas fa-fw fa-lock',
         ],
+        ['header' => 'setting'],
+        [
+            'text' => 'replace_keyword',
+            'url'  => 'replace_keyword',
+            'icon' => 'fas fa-fw fa-user',
+        ],
     ],
 
     /*
