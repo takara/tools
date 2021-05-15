@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 
 class BaseController extends Controller
 {
-	pulic function __construct()
+	public function __construct()
 	{
         $this->middleware('auth');
 	}

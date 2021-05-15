@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'user'                          => 'ユーザー管理',
     'main_navigation'               => 'メインメニュー',
     'blog'                          => 'ブログ',
     'pages'                         => 'ページ',
