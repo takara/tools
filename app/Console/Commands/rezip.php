@@ -5,6 +5,12 @@ namespace App\Console\Commands;
 use App\Models\BookTools;
 use Illuminate\Console\Command;
 
+/**
+ * 圧縮ファイルをzipで圧縮し直す
+ *
+ * @see https://stillat.com/blog/2016/12/03/custom-command-styles-with-laravel-artisan
+ * @package App\Console\Commands
+ */
 class rezip extends Command
 {
     /**
@@ -52,15 +58,15 @@ class rezip extends Command
             // 作業ディレクトリが残っている？
             if(file_exists($tmpdir))
             {
-                //print "作業ディレクトリ残っているため、削除\n";
+                \Log::info("作業ディレクトリ残っているため、削除");
 				BookTools::exec("rm -rf '$tmpdir' > /dev/null");
 				BookTools::exec("mkdir '$tmpdir' > /dev/null");
                 $tmpdir .= "/";
             }
-            print "$filename\n";
+            $this->line("$filename");
 
             if (file_exists($filename) === false) {
-                print " -> ファイルが存在しません\n";
+                $this->error(" -> ファイルが存在しません");
                 continue;
             }
 
@@ -110,7 +116,7 @@ class rezip extends Command
             /* 解凍 */
             if($uncompresscmd)
             {
-                print " ->$uncompresscmd\n";
+                $this->line(" ->$uncompresscmd");
 				BookTools::exec("{$uncompresscmd} > /dev/null");
                 $uncompress=TRUE;
 
@@ -118,7 +124,7 @@ class rezip extends Command
                 while(($file = readdir($dh)) !== false) {
                     $ext = strtolower(substr($file, -4));
                     if (in_array($ext, ['.wmv', '.mp4', '.mpg', '.avi', '.m4v'])) {
-                        printf("動画ファイル[$file]\n");
+                        $this->warn("動画ファイル[$file]");
                         $system = "mv {$tmpdir}/$file .";
 						BookTools::exec($system);
                         $uncompress=false;
@@ -131,7 +137,7 @@ class rezip extends Command
                     $system="convmv -f utf-8 -t cp932 \"{$tmpdir}\"/* --notest";
 					BookTools::exec("{$system} > /dev/null 2>&1");
                 }
-                print " ->rename\n";
+                $this->line(" ->rename");
                 BookTools::renameCode($tmpdir);
             }
 
@@ -150,7 +156,7 @@ class rezip extends Command
                 } else {
                     if(!empty($real_dir) && strpos($real_dir,"?")!==FALSE)
                     {
-                        print "読み込めないディレクトリが作成されました($real_dir)\n";
+                        $this->line("読み込めないディレクトリが作成されました($real_dir)");
                         return 1;
                     }
                     $real_dir="";
@@ -167,10 +173,9 @@ class rezip extends Command
                 }
                 BookTools::deleteUnneededFile("{$deldir}");
                 $system="zip -9 -j '{$zip_filename}' '{$tmpdir}/{$real_dir}'/*";
-                print " ->$system\n";
+                $this->line( " ->$system");
 				BookTools::exec("{$system} > /dev/null");
                 $system="rm -rf \"{$tmpdir}\"";
-                //print "$system\n";
 				BookTools::exec("{$system} > /dev/null 2>&1");
                 if (file_exists($zip_filename) && filesize($zip_filename)) {
                     BookTools::moveTrash($filename);

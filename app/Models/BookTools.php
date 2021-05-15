@@ -2,9 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Console\Command;
+use Illuminate\Console\OutputStyle;
 
 class BookTools
 {
+    /**
+     * @var Command
+     */
+    protected static $cmd = null;
     /**
      * ファイル移動
      */
@@ -45,7 +51,7 @@ class BookTools
 		static::exec("{$system}");
         list($host, $dfilename) = explode(":", $tfilename);
         $dfilename .= basename($ffilename);
-        $system = "ssh qnap \"/opt/bin/php -r 'print md5_file(\\\"{$dfilename}\\\");'\"";
+        $system = "ssh qnap \"/opt/bin/php -r 'echo md5_file(\\\"{$dfilename}\\\");'\"";
         $dmd5 = shell_exec("{$system}");
         $ret = ($fmd5 == $dmd5) ? TRUE : FALSE;
         return ($ret);
@@ -111,7 +117,6 @@ class BookTools
         if ($dh = opendir($path)) {
             // すでに数字のファイルがあるかチェック
             while (($file = readdir($dh)) !== FALSE) {
-                //print "file[{$file}]\n";
                 $file = explode(".", $file);
                 if (preg_match("/^[0-9]+$/", $file[0])) {
                     $bExistsNumberFile = TRUE;
@@ -205,7 +210,7 @@ class BookTools
 
         /* 解凍 */
         if ($uncompresscmd) {
-            print " ->$uncompresscmd\n";
+            static::line(" ->$uncompresscmd");
 			static::exec("{$uncompresscmd} > /dev/null");
             $uncompress = TRUE;
 
@@ -223,10 +228,10 @@ class BookTools
                 $system = "convmv -f utf-8 -t cp932 \"{$tmpdir}\"/* --notest";
 				static::exec("{$system} > /dev/null 2>&1");
             }
-            print " ->delete\n";
-            deleteUnneededFile($tmpdir);
-            print " ->rename\n";
-            renameCode($tmpdir);
+            static::line(" ->delete");
+            static::deleteUnneededFile($tmpdir);
+            static::line(" ->rename");
+            static::renameCode($tmpdir);
         }
     }
 
@@ -243,21 +248,21 @@ class BookTools
             }
         } else {
             if (!empty($real_dir) && strpos($real_dir, "?") !== FALSE) {
-                print "  読み込めないディレクトリが作成されました($real_dir)\n";
+                static::error("  読み込めないディレクトリが作成されました($real_dir)");
                 exit;
             }
             $real_dir = "";
             $zip_filename = substr($filename, 0, -4) . ".zip";
         }
-        $zip_filename = converOutputZipFilename($zip_filename);
+        $zip_filename = static::converOutputZipFilename($zip_filename);
         while (file_exists($zip_filename)) {
             $zip_filename = str_replace(".zip", "_.zip", $zip_filename);
         }
-        deleteUnneededFile("{$tmpdir}/{$real_dir}");
+        static::deleteUnneededFile("{$tmpdir}/{$real_dir}");
         $system = "zip -9 -j '{$zip_filename}' '{$tmpdir}/{$real_dir}'/*";
-        print " ->$system\n";
+        static::line(" ->$system\n");
 		static::exec("{$system} > /dev/null");
-        deleteTempDirectory();
+        static::deleteTempDirectory();
     }
 
     /**
@@ -306,8 +311,6 @@ class BookTools
             // １０枚以上あるので動画ではない
             return (FALSE);
         }
-        //print $res;
-        //print count(explode("\n",$res))."\n";
         $list = array(
             ".mp4",
             ".wmv",
@@ -381,5 +384,36 @@ class BookTools
         $pwd = getcwd();
         \Log::info(__METHOD__."():".__LINE__.":{$pwd}:{$cmd}");
         return system($cmd);
+    }
+
+    protected static function getOutPutObject()
+    {
+        if (is_null(static::$cmd)) {
+            static::$cmd = new Command();
+            $out = new \Symfony\Component\Console\Output\ConsoleOutput();
+            $in  = new \Symfony\Component\Console\Input\ArgvInput();
+            static::$cmd->setOutput(new OutputStyle($in, $out));
+        }
+        return static::$cmd;
+    }
+
+    public static function __callStatic(string $name ,array $arguments)
+    {
+        $ouputList = [
+            "line",
+            "info",
+            "warn",
+            "error",
+            "alert",
+//            "debug",
+        ];
+        if (in_array($name, $ouputList) === false) {
+            throw new \Exception("未定義のメソッド($name)です");
+        }
+        if (config("app.env") == "testing") {
+            return;
+        }
+        $cmd = static::getOutPutObject();
+        call_user_func_array([$cmd, $name], $arguments);
     }
 }
