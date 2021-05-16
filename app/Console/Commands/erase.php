@@ -38,8 +38,8 @@ class erase extends Command
      */
     public function handle()
     {
-        $paths           = $this->argument("paths");
-        $home		 = env("HOME");
+        $paths = $this->argument("paths");
+        $home  = env("HOME");
         $trash = "{$home}/.Trash/";
         foreach($paths as $filename)
         {
@@ -48,7 +48,17 @@ class erase extends Command
                 $this->error(" ->{$filename}が見つかりません");
                 continue;
             }
+            $this->line(" ->{$filename}をゴミ箱へ");
+            $filename = realpath($filename);
             $cmd = "mv '{$filename}' {$trash}";
+            $cmd =
+                "osascript -e \"\"\"\n".
+                "tell application \\\"Finder\\\"\n".
+                "move POSIX file \\\"{$filename}\\\" to trash\n".
+                "end tell\n".
+                "\"\"\"".
+                "";
+            //$this->line($cmd);
             BookTools::exec($cmd);
         }
         return 0;

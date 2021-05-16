@@ -386,8 +386,9 @@ class BookTools
         if (strpos($cmd,">") !== false) {
             \Log::info(" ->リダイレクト指定");
         } else {
-            $cmd .= " > /dev/null";
+            $cmd .= " 2>&1 > /dev/null";
         }
+        //static::info($cmd);
         return system($cmd);
     }
 
