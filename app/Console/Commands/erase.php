@@ -44,22 +44,7 @@ class erase extends Command
         foreach($paths as $filename)
         {
             $this->info("$filename");
-            if (file_exists($filename) === false) {
-                $this->error(" ->{$filename}が見つかりません");
-                continue;
-            }
-            $this->line(" ->{$filename}をゴミ箱へ");
-            $filename = realpath($filename);
-            $cmd = "mv '{$filename}' {$trash}";
-            $cmd =
-                "osascript -e \"\"\"\n".
-                "tell application \\\"Finder\\\"\n".
-                "move POSIX file \\\"{$filename}\\\" to trash\n".
-                "end tell\n".
-                "\"\"\"".
-                "";
-            //$this->line($cmd);
-            BookTools::exec($cmd);
+            BookTools::moveTrash($filename);
         }
         return 0;
     }

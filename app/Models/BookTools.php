@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\OutputStyle;
+use Illuminate\Support\Facades\Artisan;
 
 class BookTools
 {
@@ -370,8 +371,21 @@ class BookTools
     }
     public static function moveTrash(string $filename)
     {
-        $home = static::getHome();
-        static::moveFile($filename, "{$home}/.Trash/");
+        if (file_exists($filename) === false) {
+            $this->error(" ->{$filename}が見つかりません");
+            return;
+        }
+        static::warn(" -> [{$filename}]をゴミ箱へ");
+        $filename = realpath($filename);
+        $cmd =
+            "osascript -e \"\"\"\n".
+            "tell application \\\"Finder\\\"\n".
+            "move POSIX file \\\"{$filename}\\\" to trash\n".
+            "end tell\n".
+            "\"\"\"".
+            "";
+        static::exec($cmd);
+
     }
 
     public static function getHome() :string
