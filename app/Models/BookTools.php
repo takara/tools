@@ -379,10 +379,15 @@ class BookTools
         return env("HOME");
     }
 
-    public static function exec(string $cmd)
+    public static function exec(string $cmd, array $opt = [])
     {
         $pwd = getcwd();
-        \Log::info(__METHOD__."():".__LINE__.":{$pwd}:{$cmd}");
+        \Log::info(__METHOD__."():".__LINE__.":pwd[{$pwd}]:cmd[{$cmd}]");
+        if (strpos($cmd,">") !== false) {
+            \Log::info(" ->リダイレクト指定");
+        } else {
+            $cmd .= " > /dev/null";
+        }
         return system($cmd);
     }
 
@@ -405,7 +410,6 @@ class BookTools
             "warn",
             "error",
             "alert",
-//            "debug",
         ];
         if (in_array($name, $ouputList) === false) {
             throw new \Exception("未定義のメソッド($name)です");
