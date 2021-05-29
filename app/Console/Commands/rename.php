@@ -47,9 +47,16 @@ class rename extends Command
         foreach($paths as $filename)
         {
             $this->info("$filename");
-            if (preg_match("/^.*[^0-9]([0-9]+).*$/",$filename,$match) === false) {
-                continue;
+            if (preg_match("/^.*[^0-9]([0-9]+).*$/", $filename, $match) === false) {
+                //print __METHOD__ . "():" . __LINE__ . ":\n";
+                // 数字だけの場合
+                if (preg_match("/^([0-9]+).*?$/",$filename,$match) === false) {
+                    continue;
+                }
+            } else {
+                //print __METHOD__."():".__LINE__.":".print_r($match)."\n";
             }
+            $no = (int)($match[1]??$match);
             $fmt = $format;
             // 拡張子が無ければ補完
             if ($this->existExtension($fmt) === false) {
@@ -59,8 +66,7 @@ class rename extends Command
                     $fmt .= ".$ext";
                 }
             }
-            $no = (int)$match[1];
-            $rename = sprintf($fmt, $no);
+            $rename = BookTools::converOutputZipFilename(sprintf($fmt, $no));
             $this->line(" -> {$rename}に変更");
             $cmd ="mv '$filename' '$rename'";
             if ($dryRun) {
