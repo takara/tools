@@ -59,8 +59,8 @@ class rezip extends Command
             if(file_exists($tmpdir))
             {
                 \Log::info("作業ディレクトリ残っているため、削除");
-				BookTools::exec("rm -rf '$tmpdir' > /dev/null");
-				BookTools::exec("mkdir '$tmpdir' > /dev/null");
+				BookTools::exec("rm -rf '$tmpdir'");
+				BookTools::exec("mkdir '$tmpdir'");
                 $tmpdir .= "/";
             }
             $this->line("$filename");
@@ -117,7 +117,7 @@ class rezip extends Command
             if($uncompresscmd)
             {
                 $this->line(" ->$uncompresscmd");
-				BookTools::exec("{$uncompresscmd} > /dev/null");
+				BookTools::exec("{$uncompresscmd}");
                 $uncompress=TRUE;
 
                 $dh = opendir($tmpdir);
@@ -135,7 +135,7 @@ class rezip extends Command
                 {
                     // UTF8へ変換
                     $system="convmv -f utf-8 -t cp932 \"{$tmpdir}\"/* --notest";
-					BookTools::exec("{$system} > /dev/null 2>&1");
+					BookTools::exec("{$system}");
                 }
                 $this->line(" ->rename");
                 BookTools::renameCode($tmpdir);
@@ -174,9 +174,9 @@ class rezip extends Command
                 BookTools::deleteUnneededFile("{$deldir}");
                 $system="zip -9 -j '{$zip_filename}' '{$tmpdir}/{$real_dir}'/*";
                 $this->line( " ->$system");
-				BookTools::exec("{$system} > /dev/null");
+				BookTools::exec("{$system}");
                 $system="rm -rf \"{$tmpdir}\"";
-				BookTools::exec("{$system} > /dev/null 2>&1");
+				BookTools::exec("{$system}");
                 if (file_exists($zip_filename) && filesize($zip_filename)) {
                     BookTools::moveTrash($filename);
                 }
