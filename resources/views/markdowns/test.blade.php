@@ -18,6 +18,8 @@
 
 初めて使う場合は、`php artisan *****` を使ってください。
 
+[home](/home)
+
 [リンク](https://example.com)
 [すぐできる！Bladeにmarkdownが使えるディレクティブをつくる【Laravel】](https://blog.capilano-fw.com/?p=4668)
 
