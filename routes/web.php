@@ -22,10 +22,20 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/user', [App\Http\Controllers\admin\UserController::class, 'index'])->name('user');
-
+Route::get('book/{id}', function ($id) {
+    return 'User '.$id;
+});*/
+/*
+Route::get('user/{id}', function ($id) {
+    return 'User '.$id;
+});*/
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/replace_keyword', [App\Http\Controllers\admin\ReplaceKeywordController::class, 'index']);
-    Route::get('/replace_keyword/edit/{id}', [App\Http\Controllers\admin\ReplaceKeywordController::class, 'edit']);
+    Route::get('/replace_keyword/edit/{id}', 'App\Http\Controllers\admin\ReplaceKeywordController@edit');
+    Route::get('/replace_keyword/test', 'App\Http\Controllers\admin\ReplaceKeywordController@test');
+    Route::get('replace_keyword/smp/{id}', function ($id) {
+        return 'keyword:'.$id;
+    });
 });
 
 

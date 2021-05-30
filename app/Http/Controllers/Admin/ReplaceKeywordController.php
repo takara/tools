@@ -15,6 +15,8 @@ class ReplaceKeywordController extends BaseController
      */
     public function index()
     {
+        $e = new \Exception();
+        //print $e->getTraceAsString();exit;
         $list = ReplaceKeyword::all();
         return view('admin/replace_keyword/index', ['list' => $list]);
     }
@@ -54,13 +56,21 @@ class ReplaceKeywordController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\ReplaceKeyword  $replaceKeword
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(ReplaceKeyword $replaceKeword)
+    public function edit(int $id)
     {
-        $list = ReplaceKeyword::all();
-        return view('admin/replace_keyword/index', ['list' => $list]);
+        // O http://tools/replace_keyword/edit/1
+        // X http://tools/reprace_keyword/edit/1
+        //print_r($replaceKeword);exit;
+        //$list = ReplaceKeyword::all();
+        //return view('admin/replace_keyword/index', ['list' => $list]);
+        /**
+         * @var \App\Models\ReplaceKeyword  $replaceKeword
+         */
+        $replaceKeword = ReplaceKeyword::find($id);
+        return $replaceKeword->pattern;
     }
 
     /**
@@ -84,5 +94,13 @@ class ReplaceKeywordController extends BaseController
     public function destroy(ReplaceKeyword $replaceKeword)
     {
         //
+    }
+    public function test()
+    {
+        return view('admin/replace_keyword/index',['list'=>[]]);
+    }
+    public function member($member_id)
+    {
+        print_r($member_id);
     }
 }

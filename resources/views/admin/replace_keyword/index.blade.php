@@ -20,7 +20,7 @@
                 <tr>
                     <td>{!! $row->pattern !!}</td>
                     <td>{{$row->keyword}}</td>
-                    <td><a href="reprace_keyword/edit/{{$row->id}}"><button type="button" class="btn btn-block btn-default">編集</button></a></td>
+                    <td><a href="replace_keyword/edit/{{$row->id}}"><button type="button" class="btn btn-block btn-default">編集</button></a></td>
                 </tr>
             @endforeach
         </table>
