@@ -22,9 +22,10 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/user', [App\Http\Controllers\admin\UserController::class, 'index'])->name('user');
-Route::get('book/{id}', function ($id) {
-    return 'User '.$id;
-});*/
+Route::prefix('book/')->group(function () {
+    Route::get('show', 'App\Http\Controllers\BookController@show');
+    Route::get('{id}', 'App\Http\Controllers\BookController@showPage');
+});
 /*
 Route::get('user/{id}', function ($id) {
     return 'User '.$id;
