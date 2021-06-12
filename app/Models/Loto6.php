@@ -2,6 +2,7 @@
 
 /**
  * Created by Reliese Model.
+ * artisan code:models
  */
 
 namespace App\Models;
