@@ -18,14 +18,14 @@ class loto6Command extends Command
      *
      * @var string
      */
-    protected $signature = 'tools:loto6 {--m|mode=standard : 算出方法} {--c|count=5 : 購入数}';
+    protected $signature = 'tools:loto6 {--m|mode=standard : 算出方法} {--c|count=5 : 購入数} {--g|getresolt=0 : 抽選回当選結果取得} {--a|getall : 未取得結果取得}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'ロト6の1購入分の数値をランダムで出しますロト6の1購入分の数値をランダムで出しますロト6の1購入分の数値をランダムで出しますロト6の1購入分の数値をランダムで出しますロト6の1購入分の数値をランダムで出しますロト6の1購入分の数値をランダムで出します';
+    protected $description = 'ロト6の1購入分の数値をランダムで出します';
 
     /**
      * Execute the console command.
@@ -37,10 +37,21 @@ class loto6Command extends Command
 		mt_srand(time());
 		$mode = $this->option('mode');
 		$cnt = $this->option('count');
-		$this->line($mode);
+		$no = $this->option('getresolt');
+		if ($no > 0) {
+			$this->getResolt($no);
+			return;
+		}
+		$all = $this->option('getall');
+		if ($all) {
+			$this->line("全取得");
+			$this->getResoltAll();
+			return;
+		}
+		$this->line("mode[$mode]");
 		$func = "run".ucwords($mode);
 		if (!method_exists($this, $func)) {
-			throw new Exception("不正なモード({$mode})です");
+			throw new \Exception("不正なモード({$mode})です");
 		}
 		for ($i = 0; $i < $cnt; $i++) {
 			$w = $this->$func();
@@ -52,6 +63,98 @@ class loto6Command extends Command
 			}
 			$this->line($buf);
 		}
+	}
+
+	protected function getResoltAll()
+	{
+		$maxNo = Loto6::max('id');
+		$no = $maxNo;
+		do {
+			$no++;
+			$sts = $this->getResolt($no);
+			if ($sts) {
+				$this->info("第{$no}回の結果を取り込みました");
+			}
+		} while($sts);
+	}
+
+	protected function downloadResultCSV(int $no)
+	{
+		//https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/csv/A1021506.CSV
+		$url = sprintf("https://www.mizuhobank.co.jp/retail/takarakuji/loto/loto6/csv/A102%04d.CSV", $no);
+		try {
+			$csv = file_get_contents($url);
+		} catch(\Exception $e) {
+			$msg = $e->getMessage();
+			if (strpos($msg, "404") === false) {
+				$this->error($msg);
+			}
+			return [];
+		}
+		$file = mb_convert_encoding($csv, "utf8", "sjis");
+		$file = explode("\n", $file);
+		return $file;
+	}
+
+	protected function getResolt(int $no)
+	{
+		$loto6 = Loto6::find($no);
+		if (empty($loto6) === false) {
+			$this->error("第{$no}回は既に取り込んでいます");
+			return false;
+		}
+		$file = $this->downloadResultCSV($no);
+		if (empty($file)) {
+			$this->error("第{$no}回の結果CSVを読み込めませんでした");
+			return false;
+		}
+		$ptnList = [
+			["第([0-9]+)回ロト６", "id"],
+			["数字選択式全国自治宝くじ,平成([0-9]+)年([0-9]+)月([0-9]+)日", "hnen","tuki","hi"],
+			["数字選択式全国自治宝くじ,令和([0-9]+)年([0-9]+)月([0-9]+)日", "rnen","tuki","hi"],
+			["本数字,([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),ボーナス数字,([0-9]+)", "num1","num2","num3","num4","num5","num6","numb"],
+			["１等,([0-9]+)口,([0-9]+)円","hitnum1","reward1"],
+			["２等,([0-9]+)口,([0-9]+)円","hitnum2","reward2"],
+			["３等,([0-9]+)口,([0-9]+)円","hitnum3","reward3"],
+			["４等,([0-9]+)口,([0-9]+)円","hitnum4","reward4"],
+			["５等,([0-9]+)口,([0-9]+)円","hitnum5","reward5"],
+			["キャリーオーバー,([0-9]+)円","carryover"],
+		];
+
+		$ret = [
+			"hitnum1"   => 0,
+			"reward1"   => 0,
+			"hitnum2"   => 0,
+			"reward2"   => 0,
+			"carryover" => 0,
+		];
+		foreach($file as $line) {
+			foreach($ptnList as  $param) {
+				$ptn = array_shift($param);
+				if(preg_match("/{$ptn}/",$line, $match)) {
+					array_shift($match);
+					foreach($param as $field) {
+						$val = array_shift($match);
+						$ret[$field] = $val;
+					}
+				}
+			}
+		}
+		if (isset($ret["hnen"])) {
+			$ret["date"] = mktime(0,0,0,$ret["tuki"],$ret["hi"],$ret["hnen"]+1988);
+		}
+		if (isset($ret["rnen"])) {
+			$ret["date"] = mktime(0,0,0,$ret["tuki"],$ret["hi"],$ret["rnen"]+2018);
+		}
+		if (!isset($ret["date"])) {
+			$this->error("日付を解析出来ませんでした");
+			$this->line( implode("",$file));
+			return false;
+		}
+		$loto6 = new Loto6($ret);
+		$loto6->save();
+
+		return true;
 	}
 
 	protected function runStandard()

@@ -65,6 +65,7 @@ class Loto6 extends Model
 	];
 
 	protected $fillable = [
+		'id',
 		'date',
 		'num1',
 		'num2',
