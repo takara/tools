@@ -35,7 +35,7 @@ class BookTools
                 break;
             case "samba":
                 $system = "mv \"{$normalfilename}\" \"{$movetopath}{$normalfilename}\"";
-				static::exec("{$system} > /dev/null");
+				static::exec("{$system}");
                 $ret = TRUE;
                 break;
         }
@@ -156,13 +156,68 @@ class BookTools
                     }
                     $ext = @array_pop(explode(".", $file));
                     $system = sprintf("mv \"{$path}/{$file}\" \"{$path}/%03d.{$ext}\"", $no++);
-                    static::exec("{$system} > /dev/null 2>&1");
+                    static::exec("{$system}");
                 }
             }
         } else {
             \Log::info("  すでに数字のファイルがある[{$file}]");
         }
     }
+
+	public static function checkRarFile(string $filename) : array
+	{
+		if (extension_loaded("rar") === false) {
+			if (dl("rar") === false) {
+				\Log::error("rar 拡張モジュールがロードされていない");
+				return [];
+			}
+		}
+		$rar_arch = \RarArchive::open($filename);
+		if ($rar_arch === FALSE)
+		{
+			throw new \Exception("RARファイル($filename)を開けません");
+		}
+
+		$rar_entries = $rar_arch->getEntries();
+		if ($rar_entries === FALSE)
+		{
+			throw new \Exception("Could not retrieve entries.");
+		}
+
+		$ret = [];
+		foreach ($rar_entries as $e) {
+			$name = $e->getName();
+			$info = pathinfo($name);
+			if (isset($info['extension']) === false) {
+				continue;
+			}
+			$ext = strtolower($info['extension']);
+			if (isset($ret[$ext])) {
+				$ret[$ext]++;
+			} else {
+				$ret[$ext] = 1;
+			}
+		}
+		$rar_arch->close();
+		arsort($ret);
+		return $ret;
+	}
+
+	public static function isPicture(string $ext) : bool
+	{
+		switch(strtolower($ext))
+		{
+		case 'jpg':
+		case 'png':
+		case 'gif':
+			$ret = true;
+			break;
+		default:
+			$ret = false;
+			break;
+		}
+		return $ret;
+	}
 
     /**
      * 解凍
@@ -212,7 +267,7 @@ class BookTools
         /* 解凍 */
         if ($uncompresscmd) {
             static::line(" ->$uncompresscmd");
-			static::exec("{$uncompresscmd} > /dev/null");
+			static::exec("{$uncompresscmd}");
             $uncompress = TRUE;
 
             $dh = opendir($tmpdir);
@@ -227,7 +282,7 @@ class BookTools
             if (FALSE) {
                 // UTF8へ変換
                 $system = "convmv -f utf-8 -t cp932 \"{$tmpdir}\"/* --notest";
-				static::exec("{$system} > /dev/null 2>&1");
+				static::exec("{$system}");
             }
             static::line(" ->delete");
             static::deleteUnneededFile($tmpdir);
@@ -262,7 +317,7 @@ class BookTools
         static::deleteUnneededFile("{$tmpdir}/{$real_dir}");
         $system = "zip -9 -j '{$zip_filename}' '{$tmpdir}/{$real_dir}'/*";
         static::line(" ->$system\n");
-		static::exec("{$system} > /dev/null");
+		static::exec("{$system}");
         static::deleteTempDirectory();
     }
 
@@ -272,7 +327,7 @@ class BookTools
     public static function deleteTempDirectory($tmpdir = "tmp_dir")
     {
         $system = "rm -rf \"{$tmpdir}\"";
-		static::exec("{$system} > /dev/null 2>&1");
+		static::exec("{$system}");
     }
 
     /**
@@ -384,7 +439,7 @@ class BookTools
             "end tell\n".
             "\"\"\"".
             "";
-        static::exec($cmd);
+        static::exec($cmd, ['log' => false]);
 
     }
 
@@ -395,8 +450,11 @@ class BookTools
 
     public static function exec(string $cmd, array $opt = [])
     {
+		$enableLog = $opt['log'] ?? true;
         $pwd = getcwd();
-        \Log::info(__METHOD__."():".__LINE__.":pwd[{$pwd}]:cmd[{$cmd}]");
+		if ($enableLog) {
+			\Log::debug(__METHOD__."():".__LINE__.":pwd[{$pwd}]:cmd[{$cmd}]");
+		}
         if (strpos($cmd,">") !== false) {
             \Log::info(" ->リダイレクト指定");
         } else {
