@@ -29,11 +29,9 @@ class dispatch extends Command
      */
     public function handle()
     {
-		\Log::debug("version:".phpversion());
-		\Log::debug("extension_dir:".get_cfg_var("extension_dir"));
 		$this->info("dispatch");
         $filename = $this->argument("filename");
-		\Log::debug($filename);
+		\Log::debug(__METHOD__."():".__LINE__.":[$filename]");
 		if (file_exists($filename) === false) {
 			if (file_exists($filename.".part")) {
 				\Log::debug("{$filename}はダウンロード中");
@@ -69,7 +67,7 @@ class dispatch extends Command
 		$maxExt = reset($keys);
 		\Log::debug("maxExt[$maxExt]");
 		if (BookTools::isPicture($maxExt)) {
-			$cmd = "rezip \"{$filename}\"";
+			$cmd = "rezip '{$filename}'";
 			$this->line(" ->$cmd");
 			BookTools::exec($cmd);
 		}
@@ -77,7 +75,7 @@ class dispatch extends Command
 
 	protected function dispatchExtensionPng(string $filename)
 	{
-		$cmd = "~/.bin/png2jpg $filename";
+		$cmd = "~/.bin/png2jpg '$filename'";
 		BookTools::exec($cmd);
 		$jpgfile = str_replace("png", "jpg", $filename);
 		if (file_exists($jpgfile) && filesize($jpgfile)) {

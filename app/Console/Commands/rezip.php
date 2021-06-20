@@ -28,23 +28,13 @@ class rezip extends Command
     protected $description = '圧縮ファイルをzipで圧縮し直す';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return int
      */
     public function handle()
     {
-        \Log::info(__METHOD__."():".__LINE__.":");
+		$this->info("tools:rezip");
         $paths           = $this->argument("paths");
         $tmpdir          = tempnam(BookTools::getTempDirectory(), "rezip_");
         $arcive_exe_path = BookTools::getSetting("arcive_exe_path", "/usr/local/bin/"); // "/cygdrive/c/windows/");
@@ -53,6 +43,7 @@ class rezip extends Command
         $norealdir       = $this->option("norealdir");
         foreach($paths as $filename)
         {
+			\Log::info(__METHOD__."():".__LINE__.":$filename");
             $uncompress=FALSE;
             $uncompresscmd="";
             // 作業ディレクトリが残っている？
@@ -63,7 +54,7 @@ class rezip extends Command
 				BookTools::exec("mkdir '$tmpdir'");
                 $tmpdir .= "/";
             }
-            $this->line("$filename");
+            $this->line("[$filename]");
 
             if (file_exists($filename) === false) {
                 $this->error(" -> ファイルが存在しません");
@@ -162,8 +153,8 @@ class rezip extends Command
                     $real_dir="";
                     $zip_filename=substr($filename,0,-4).".zip";
                 }
-                $zip_filename=BookTools::converOutputZipFilename($zip_filename);
-                if($zip_filename==$filename)
+                $zip_filename = BookTools::converOutputZipFilename($zip_filename);
+                if($zip_filename == $filename)
                 {
                     $zip_filename=str_replace(".zip","_.zip",$zip_filename);
                 }
@@ -172,8 +163,8 @@ class rezip extends Command
                     $deldir = "{$tmpdir}{$real_dir}";
                 }
                 BookTools::deleteUnneededFile("{$deldir}");
-                $system="zip -9 -j '{$zip_filename}' '{$tmpdir}/{$real_dir}'/*";
-                $this->line( " ->$system");
+                $system = "zip -9 -j '{$zip_filename}' '{$tmpdir}/{$real_dir}'/*";
+                $this->line(" ->$system");
 				BookTools::exec("{$system}");
                 $system="rm -rf \"{$tmpdir}\"";
 				BookTools::exec("{$system}");

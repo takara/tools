@@ -431,6 +431,7 @@ class BookTools
             return;
         }
         static::warn(" -> [{$filename}]をゴミ箱へ");
+        \Log::info(" -> [{$filename}]をゴミ箱へ");
         $filename = realpath($filename);
         $cmd =
             "osascript -e \"\"\"\n".
