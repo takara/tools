@@ -208,6 +208,7 @@ class BookTools
 		switch(strtolower($ext))
 		{
 		case 'jpg':
+		case 'jpeg':
 		case 'png':
 		case 'gif':
 			$ret = true;
@@ -454,6 +455,7 @@ class BookTools
 		$enableLog = $opt['log'] ?? true;
         $pwd = getcwd();
 		if ($enableLog) {
+			static::line(" -> $cmd");
 			\Log::debug(__METHOD__."():".__LINE__.":pwd[{$pwd}]:cmd[{$cmd}]");
 		}
         if (strpos($cmd,">") !== false) {

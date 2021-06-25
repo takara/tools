@@ -59,7 +59,6 @@ class tools2zip extends Command
             // -9 圧縮MAX
             // -j パス保存無し
             $system="zip -9 -j '{$zip_filename}' '{$directry}'/*";
-            $this->line(" -> {$system}");
             BookTools::exec($system);
             if (file_exists($zip_filename) && filesize($zip_filename)) {
                 BookTools::moveTrash($filename);
