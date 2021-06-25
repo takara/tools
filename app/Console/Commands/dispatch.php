@@ -49,6 +49,7 @@ class dispatch extends Command
 		$ext  = strtolower($info['extension']);;
 		$method = Str::camel("dispatch_extension_$ext");
 		if (method_exists($this, $method)) {
+			\Log::debug("method[$method]実行");
 			$this->$method($filename);
 		} else {
 			\Log::error("method[$method]がない");
@@ -58,18 +59,30 @@ class dispatch extends Command
 
 	protected function dispatchExtensionMp4(string $filename)
 	{
+		$this->info(" ->何もしない");
+		\Log::debug(" ->何もしない");
 	}
 	
 	protected function dispatchExtensionRar(string $filename)
 	{
+		if (strpos($filename, "part") !== false) {
+			$this->alert("分割ファイル($filename)のためskip");
+			\Log::debug("分割ファイル($filename)のためskip");
+			return;
+		}
 		$extList = BookTools::checkRarFile($filename);
 		$keys = array_keys($extList);
 		$maxExt = reset($keys);
 		\Log::debug("maxExt[$maxExt]");
 		if (BookTools::isPicture($maxExt)) {
 			$cmd = "rezip '{$filename}'";
-			$this->line(" ->$cmd");
+			//$this->line(" ->$cmd");
 			BookTools::exec($cmd);
+		}
+		if($maxExt == "pdf") {
+			$cmd = "unrar x '$filename'";
+			BookTools::exec($cmd);
+			BookTools::moveTrash($filename);
 		}
 	}
 
