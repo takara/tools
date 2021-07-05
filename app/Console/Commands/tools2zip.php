@@ -12,7 +12,7 @@ class tools2zip extends Command
      *
      * @var string
      */
-    protected $signature = 'tools:2zip {paths*}';
+    protected $signature = 'tools:2zip {path}';
 
     /**
      * The console command description.
@@ -22,23 +22,14 @@ class tools2zip extends Command
     protected $description = '指定のディレクトリを圧縮します';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return int
      */
     public function handle()
     {
-        $paths = $this->argument("paths");
+        $path = $this->argument("path");
+		$paths = BookTools::getFiles($path);
         foreach($paths as $filename)
         {
             if(is_dir($filename) === false) {

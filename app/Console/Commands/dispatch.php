@@ -30,29 +30,34 @@ class dispatch extends Command
     public function handle()
     {
 		$this->info("dispatch");
-        $filename = $this->argument("filename");
-		\Log::debug(__METHOD__."():".__LINE__.":[$filename]");
-		if (file_exists($filename) === false) {
-			if (file_exists($filename.".part")) {
-				\Log::debug("{$filename}はダウンロード中");
-				return 0;
-			} else {
-				$this->error("{$filename}が存在しません");
-				\Log::debug("{$filename}が存在しません");
-				return 1;
+		$path = $this->argument("filename");
+		//\Log::debug(__METHOD__."():".__LINE__.":[$path]");
+		$paths = BookTools::getFiles($path);
+		//\Log::debug(__METHOD__."():".__LINE__.":[".print_r($paths)."]");
+		foreach ($paths as $filename) {
+			\Log::debug(__METHOD__."():".__LINE__.":[$filename]");
+			if (file_exists($filename) === false) {
+				if (file_exists($filename.".part")) {
+					\Log::debug("{$filename}はダウンロード中");
+					return 0;
+				} else {
+					$this->error("{$filename}が存在しません");
+					\Log::debug("{$filename}が存在しません");
+					return 1;
+				}
 			}
-		}
-		$info = pathinfo($filename);
-		if (isset($info['extension']) === false) {
-			return 0;
-		}
-		$ext  = strtolower($info['extension']);;
-		$method = Str::camel("dispatch_extension_$ext");
-		if (method_exists($this, $method)) {
-			\Log::debug("method[$method]実行");
-			$this->$method($filename);
-		} else {
-			\Log::error("method[$method]がない");
+			$info = pathinfo($filename);
+			if (isset($info['extension']) === false) {
+				return 0;
+			}
+			$ext  = strtolower($info['extension']);;
+			$method = Str::camel("dispatch_extension_$ext");
+			if (method_exists($this, $method)) {
+				\Log::debug("method[$method]実行");
+				$this->$method($filename);
+			} else {
+				\Log::error("method[$method]がない");
+			}
 		}
         return 0;
     }

@@ -12,6 +12,34 @@ class BookTools
      * @var Command
      */
     protected static $cmd = null;
+
+    public static function getFiles($pattern) : array
+	{
+		$ret = [];
+		$pwd = getcwd();
+		\Log::info("{$pwd}");
+		if (file_exists($pattern)) {
+			return [$pattern];
+		}
+		$dh = opendir($pwd);
+		if ($dh === false) {
+			\Log::error("{$pwd}のオープンに失敗しました");
+			return $ret;
+		}
+		\Log::info(__METHOD__."():".__LINE__.":");
+		while (($file = readdir($dh)) !== false) {
+			if (!fnmatch($pattern, $file)) {
+				\Log::info(__METHOD__."():".__LINE__.":skip [$file]");
+				continue;
+			}
+			\Log::debug($file);
+			$ret[] = $file;
+		}
+		closedir($dh);
+		\Log::info(__METHOD__."():".__LINE__.":");
+		return $ret;
+	}
+
     /**
      * ファイル移動
      */
