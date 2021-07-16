@@ -9,6 +9,35 @@ use Illuminate\Support\Facades\Artisan;
 class BookTools
 {
     /**
+     * ファイル名変更
+     */
+    public static function converOutputZipFilename($filename, array $opt = [])
+    {
+		$debug = $opt['debug'] ?? false;
+        $list = ReplaceKeyword::all();
+		if ($debug) {
+			$ret = $filename;
+			foreach ($list as $row) {
+				$pattern = "/{$row->pattern}/";
+				$replacement = $row->keyword;
+				$from = $ret;
+				static::info("  patten[{$pattern}]");
+				$ret = preg_replace($pattern, $replacement, $ret);
+				static::line("   ->{$from} -> {$ret}");
+			}
+		} else {
+			$pattern = [];
+			$replacement = [];
+			foreach ($list as $row) {
+				$pattern[] = "/{$row->pattern}/";
+				$replacement[] = $row->keyword;
+			}
+			$ret = preg_replace($pattern, $replacement, $filename);
+		}
+        return ($ret);
+    }
+
+    /**
      * @var Command
      */
     protected static $cmd = null;
@@ -119,22 +148,6 @@ class BookTools
             }
             closedir($dh);
         }
-    }
-
-    /**
-     * ファイル名変更
-     */
-    public static function converOutputZipFilename($filename)
-    {
-        $list = ReplaceKeyword::all();
-        $pattern = [];
-        $replacement = [];
-        foreach ($list as $row) {
-            $pattern[] = "/{$row->pattern}/";
-            $replacement[] = $row->keyword;
-        }
-        $ret = preg_replace($pattern, $replacement, $filename);
-        return ($ret);
     }
 
     /**
