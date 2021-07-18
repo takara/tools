@@ -123,6 +123,11 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+	'consumer_key'         => env('CONSUMER_KEY'),
+	'consumer_key_sercret' => env('CONSUMER_KEY_SERCRET'),
+	'access_token'         =>  env('ACCESS_TOKEN'),
+	'access_token_secret'  => env('ACCESS_TOKEN_SECRET'),
+
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
