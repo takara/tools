@@ -14,7 +14,8 @@
         "jeroennoten/laravel-adminlte": "^3.5",
         "laravel/framework": "^8.12",
         "laravel/tinker": "^2.5",
-        "reliese/laravel": "^1.1"
+        "reliese/laravel": "^1.1",
+        "weidner/goutte": "^2.1"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.5",
