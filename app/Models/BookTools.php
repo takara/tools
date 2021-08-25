@@ -228,6 +228,9 @@ class BookTools
 		$ret = [];
 		foreach ($rar_entries as $e) {
 			$name = $e->getName();
+			if ($e->isDirectory() && strpos($name, "/") !== false) {
+				$ret["Two-tier path"] = 0;
+			}
 			$info = pathinfo($name);
 			if (isset($info['extension']) === false) {
 				continue;

@@ -77,11 +77,16 @@ class dispatch extends Command
 		}
 		$extList = BookTools::checkRarFile($filename);
 		$keys = array_keys($extList);
+		if (isset($extList["Two-tier path"])) {
+			$this->line(" ->$filename");
+			$this->error(" ->2階層のパスが存在する");
+			\Log::debug(" ->2階層のパスが存在する");
+			return;
+		}
 		$maxExt = reset($keys);
 		\Log::debug("maxExt[$maxExt]");
 		if (BookTools::isPicture($maxExt)) {
 			$cmd = "rezip '{$filename}'";
-			//$this->line(" ->$cmd");
 			BookTools::exec($cmd);
 		}
 		if($maxExt == "pdf") {
