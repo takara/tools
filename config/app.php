@@ -235,5 +235,10 @@ return [
 		'View' => Illuminate\Support\Facades\View::class,
 		'Goutte' => Weidner\Goutte\GoutteFacade::class,
     ],
-
+    // switchbot.token
+	'switchbot' => [
+		'token' => env('SWITCH_BOT_TOKEN', 'abc'),
+		'thermometer_id' => env('HERMOMETER_ID', 'abc'),
+		'aircon_id'      => env('AIRCON_ID', 'abc'),
+	],
 ];
