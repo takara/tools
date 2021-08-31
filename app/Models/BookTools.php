@@ -186,7 +186,17 @@ class BookTools
 
                 }
                 closedir($dh);
-                asort($files, SORT_NATURAL);
+                natsort($files);
+				usort($files, function($a, $b) {
+					if (preg_match("/([0-9]+)/", $a, $match)) {
+						$a = (int)$match[1];
+					}
+					if (preg_match("/([0-9]+)/", $b, $match)) {
+						$b = (int)$match[1];
+					}
+					return $a - $b;
+				});
+				\Log::error(__METHOD__."():".__LINE__.":".json_encode($files));
                 // カバーを先頭に持ってくる
                 foreach ($cover as $file) {
                     array_unshift($files, $file);
