@@ -31,9 +31,38 @@ class thermometer extends Command
 		$id = app("config")->get("app.switchbot.thermometer_id");
 		$res = SwitchBotAPI::getInstance()->getStatus($id);
 		$temp = $res['body']['temperature'];
+		$humidity = $res['body']['humidity'];
 		\Log::info("温度:[$temp]");
+		\Log::info("湿度:[$humidity]");
+		$di = 0.81 * $temp +  0.01 * $humidity * ( 0.99 * $temp - 14.3) + 46.3;
+		$str = $this->getDIString($di);
+		\Log::info("不快指数:[$di][$str]");
+		//\Log::debug(print_r($res, true));
 		$temp = (int)($temp * 10);
 		print $temp;
         return 0;
     }
+
+	protected function getDIString($di) : string
+	{
+		$list = [
+			[ 0,55,"寒い"],
+			[55,60,"肌寒い"],
+			[60,65,"何も感じない"],
+			[65,70,"快い"],
+			[70,75,"暑くない"],
+			[75,80,"やや暑い"],
+			[80,85,"暑くて汗が出る"],
+			[85,99,"暑くてたまらない"],
+		];
+		$ret = "";
+		foreach ($list as $cond) {
+			list($s, $e, $str) = $cond;
+			if ($s<= $di && $di < $e) {
+				$ret = $str;
+				break;
+			}
+		}
+		return $ret;
+	}
 }
