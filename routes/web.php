@@ -38,5 +38,8 @@ Route::group(['middleware' => ['auth']], function () {
         return 'keyword:'.$id;
     });
 });
+Route::group(['prefix' => 'admin', 'middleware' => ['auth']], function () {
+    Route::get('/aircon', 'App\Http\Controllers\admin\AirconController@index');
+});
 
 

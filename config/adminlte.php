@@ -222,6 +222,7 @@ return [
     | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Menu-Configuration
     |
     */
+	// https://adminlte.io/themes/AdminLTE/pages/UI/icons.html
 
     'menu' => [
         [
@@ -245,6 +246,11 @@ return [
             'text' => 'replace_keyword',
             'url'  => 'replace_keyword',
             'icon' => 'fas fa-fw fa-user',
+        ],
+        [
+            'text' => 'aircon-setting',
+            'url'  => 'admin/aircon',
+            'icon' => 'fas fa-fw fa-wrench',
         ],
     ],
 
