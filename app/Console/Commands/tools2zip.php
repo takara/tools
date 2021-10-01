@@ -12,7 +12,7 @@ class tools2zip extends Command
      *
      * @var string
      */
-    protected $signature = 'tools:2zip {path}';
+    protected $signature = 'tools:2zip {--c|norename : リネーム無し} {path}';
 
     /**
      * The console command description.
@@ -28,6 +28,7 @@ class tools2zip extends Command
      */
     public function handle()
     {
+		$norename = $this->option("norename");
         $path = $this->argument("path");
 		$paths = BookTools::getFiles($path);
         foreach($paths as $filename)
@@ -44,7 +45,9 @@ class tools2zip extends Command
                 $filename=substr($filename,0,-1);
             }
 
-            BookTools::renameCode($filename);
+			if (!$norename) {
+				BookTools::renameCode($filename);
+			}
 
             $zip_filename=BookTools::converOutputZipFilename($filename).".zip";
             // -9 圧縮MAX
