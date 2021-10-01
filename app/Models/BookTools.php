@@ -42,6 +42,29 @@ class BookTools
      */
     protected static $cmd = null;
 
+    public static function findFiles($path = ".") : array
+	{
+		$ret = [];
+		$dh = opendir($path);
+		if ($dh === false) {
+			\Log::error("{$pwd}のオープンに失敗しました");
+			return $ret;
+		}
+		while (($file = readdir($dh)) !== false) {
+			if (substr($file, 0, 1) == ".") {
+				continue;
+			}
+			$filename = "$path/$file";
+			//print "$filename\n";
+			if (is_dir($filename)) {
+				$res = static::findFiles($filename);
+				$ret =array_merge($ret, $res);
+			}
+			$ret[] = preg_replace("/^\.\//", "", $filename);
+		}
+		return $ret;
+	}
+
     public static function getFiles($pattern) : array
 	{
 		$ret = [];
