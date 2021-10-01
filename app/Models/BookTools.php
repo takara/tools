@@ -190,9 +190,13 @@ class BookTools
 				usort($files, function($a, $b) {
 					if (preg_match("/([0-9]+)/", $a, $match)) {
 						$a = (int)$match[1];
+					} else {
+						$a = 0;
 					}
 					if (preg_match("/([0-9]+)/", $b, $match)) {
 						$b = (int)$match[1];
+					} else {
+						$b = 0;
 					}
 					return $a - $b;
 				});
