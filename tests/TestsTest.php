@@ -7,7 +7,7 @@ use Tests\TestCase;
 
 class TestsTest extends TestCase
 {
-    public function test_配列操作()
+    public function test__配列操作()
     {
 		$data = [
 			[
