@@ -210,19 +210,7 @@ class BookTools
                 }
                 closedir($dh);
                 natsort($files);
-				usort($files, function($a, $b) {
-					if (preg_match("/([0-9]+)/", $a, $match)) {
-						$a = (int)$match[1];
-					} else {
-						$a = 0;
-					}
-					if (preg_match("/([0-9]+)/", $b, $match)) {
-						$b = (int)$match[1];
-					} else {
-						$b = 0;
-					}
-					return $a - $b;
-				});
+				$files = static::sortPages($files);
 				\Log::error(__METHOD__."():".__LINE__.":".json_encode($files));
                 // カバーを先頭に持ってくる
                 foreach ($cover as $file) {
@@ -241,6 +229,24 @@ class BookTools
             \Log::info("  すでに数字のファイルがある[{$file}]");
         }
     }
+
+	public static function sortPages(array $files): array
+	{
+		usort($files, function($a, $b) {
+			if (preg_match_all("/([0-9]+)/", $a, $match)) {
+				$a = (int)array_pop($match[1]);
+			} else {
+				$a = 0;
+			}
+			if (preg_match_all("/([0-9]+)/", $b, $match)) {
+				$b = (int)array_pop($match[1]);
+			} else {
+				$b = 0;
+			}
+			return $a - $b;
+		});
+		return $files;
+	}
 
 	public static function checkRarFile(string $filename) : array
 	{
