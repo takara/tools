@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Console\Command;
 use Illuminate\Console\OutputStyle;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 class BookTools
 {
@@ -172,6 +173,60 @@ class BookTools
             closedir($dh);
         }
     }
+
+    public static function renameFormat(string $filename, bool $exec = true): string
+	{
+		$ret = $filename;
+		$list = get_class_methods(static::class);
+		foreach ($list as $method) {
+			if (preg_match('/is_([a-z0-9]+_file_type)/', Str::snake($method), $match)) {
+				if (static::$method($filename)) {
+					$renameMethod = Str::camel("rename_{$match[1]}");
+					$ret = static::$renameMethod($filename);
+				}
+			}
+		}
+		if ($exec && $filename != $ret) {
+			$system = "mv \"{$filename}\" \"{$ret}\"";
+			static::exec("{$system}");
+		}
+		return $ret;
+	}
+
+	public static function renameFc2FileType($filename): string
+	{
+		if (preg_match("/([0-9]+)\-([0-9])/", $filename, $match)) {
+			$info = pathinfo($filename);
+			$dir = $info['dirname'] == "/" ? "" : $info['dirname'];
+			return sprintf("%s/FC2-PPV-%d-%d.%s", 
+				$dir,
+				$match[1],
+				$match[2],
+				$info['extension']);
+		}
+		if (preg_match("/([0-9]{4,10})/", $filename, $match)) {
+			$info = pathinfo($filename);
+			$dir = $info['dirname'] == "/" ? "" : $info['dirname'];
+			return sprintf("%s/FC2-PPV-%d.%s", 
+				$dir,
+				$match[1], $info['extension']);
+		}
+		return $filename;
+	}
+
+	public static function isFc2FileType($filename): bool
+	{
+		if (preg_match("/(fc2)/i", $filename, $match) == false) {
+			return false;
+		}
+		if (preg_match("/ppv/i", $filename) == false) {
+			return false;
+		}
+		if (preg_match("/[0-9]{2,10}/", $filename) == false) {
+			return false;
+		}
+		return true;
+	}
 
     /**
      * 数字のファイル名に置き換える

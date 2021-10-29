@@ -7,6 +7,22 @@ use Tests\TestCase;
 
 class BookToolsTest extends TestCase
 {
+    public function test__必要があればファイル名変更()
+	{
+		$filename ="/FC2 PPV 2240112.mp4";
+        $res = Booktools::renameFormat($filename, false);
+		$this->assertEquals("/FC2-PPV-2240112.mp4", $res);
+		$filename ="/aaa/bbb/FC2 PPV 2240112.jpg";
+        $res = Booktools::renameFormat($filename, false);
+		$this->assertEquals("/aaa/bbb/FC2-PPV-2240112.jpg", $res);
+		$filename ="Herennia---Touching-Herself_Stunning-1080p_top-modelz.org.mp4";
+        $res = Booktools::renameFormat($filename, false);
+		$this->assertEquals("Herennia---Touching-Herself_Stunning-1080p_top-modelz.org.mp4", $res);
+		$filename ="FC2PPV-1268153-1.mp4";
+        $res = Booktools::renameFormat($filename, false);
+		$this->assertEquals("./FC2-PPV-1268153-1.mp4", $res);
+	}
+
     public function test__ファイル名変更()
     {
         $res = Booktools::converOutputZipFilename("[hoge] fuga.zip");

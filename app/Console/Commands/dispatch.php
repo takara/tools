@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\BookTools;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
+use Log;
 
 class dispatch extends Command
 {
@@ -31,18 +32,16 @@ class dispatch extends Command
     {
 		$this->info("dispatch");
 		$path = $this->argument("filename");
-		//\Log::debug(__METHOD__."():".__LINE__.":[$path]");
 		$paths = BookTools::getFiles($path);
-		//\Log::debug(__METHOD__."():".__LINE__.":[".print_r($paths)."]");
 		foreach ($paths as $filename) {
-			\Log::debug(__METHOD__."():".__LINE__.":[$filename]");
+			Log::debug(__METHOD__."():".__LINE__.":[$filename]");
 			if (file_exists($filename) === false) {
 				if (file_exists($filename.".part")) {
-					\Log::debug("{$filename}はダウンロード中");
+					Log::debug("{$filename}はダウンロード中");
 					return 0;
 				} else {
 					$this->error("{$filename}が存在しません");
-					\Log::debug("{$filename}が存在しません");
+					Log::debug("{$filename}が存在しません");
 					return 1;
 				}
 			}
@@ -53,10 +52,10 @@ class dispatch extends Command
 			$ext  = strtolower($info['extension']);;
 			$method = Str::camel("dispatch_extension_$ext");
 			if (method_exists($this, $method)) {
-				\Log::debug("method[$method]実行");
+				Log::debug("method[$method]実行");
 				$this->$method($filename);
 			} else {
-				\Log::error("method[$method]がない");
+				Log::error("method[$method]がない");
 			}
 		}
         return 0;
@@ -64,15 +63,30 @@ class dispatch extends Command
 
 	protected function dispatchExtensionMp4(string $filename)
 	{
-		$this->info(" ->何もしない");
-		\Log::debug(" ->何もしない");
+		$this->info(" ->必要あればファイル名変更");
+		Log::debug(" ->必要あればファイル名変更");
+		Booktools::renameFormat($filename);
+	}
+
+	protected function dispatchExtensionJpeg(string $filename)
+	{
+		$this->info(" ->必要あればファイル名変更");
+		Log::debug(" ->必要あればファイル名変更");
+		Booktools::renameFormat($filename);
+	}
+	
+	protected function dispatchExtensionJpg(string $filename)
+	{
+		$this->info(" ->必要あればファイル名変更");
+		Log::debug(" ->必要あればファイル名変更");
+		Booktools::renameFormat($filename);
 	}
 	
 	protected function dispatchExtensionRar(string $filename)
 	{
 		if (strpos($filename, "part") !== false) {
 			$this->alert("分割ファイル($filename)のためskip");
-			\Log::debug("分割ファイル($filename)のためskip");
+			Log::debug("分割ファイル($filename)のためskip");
 			return;
 		}
 		$extList = BookTools::checkRarFile($filename);
@@ -80,11 +94,11 @@ class dispatch extends Command
 		if (isset($extList["Two-tier path"])) {
 			$this->line(" ->$filename");
 			$this->error(" ->2階層のパスが存在する");
-			\Log::debug(" ->2階層のパスが存在する");
+			Log::debug(" ->2階層のパスが存在する");
 			return;
 		}
 		$maxExt = reset($keys);
-		\Log::debug("maxExt[$maxExt]");
+		Log::debug("maxExt[$maxExt]");
 		if (BookTools::isPicture($maxExt)) {
 			$cmd = "rezip '{$filename}'";
 			BookTools::exec($cmd);
