@@ -18,7 +18,7 @@ class rezip extends Command
      *
      * @var string
      */
-    protected $signature = 'tools:rezip {--a|norealdir : ディレクトリ名を書庫名に使わない} {paths*}';
+    protected $signature = 'tools:rezip {--a|norealdir : ディレクトリ名を書庫名に使わない} {--c|norename : リネーム無し} {paths*}';
 
     /**
      * The console command description.
@@ -35,6 +35,7 @@ class rezip extends Command
     public function handle()
     {
 		$this->info("tools:rezip");
+		$norename        = $this->option("norename");
         $paths           = $this->argument("paths");
         $tmpdir          = tempnam(BookTools::getTempDirectory(), "rezip_");
         $arcive_exe_path = BookTools::getSetting("arcive_exe_path", "/usr/local/bin/"); // "/cygdrive/c/windows/");
@@ -129,7 +130,9 @@ class rezip extends Command
 					BookTools::exec("{$system}");
                 }
                 $this->line(" ->rename");
-                BookTools::renameCode($tmpdir);
+				if (!$norename) {
+					BookTools::renameCode($tmpdir);
+				}
             }
 
             /* 圧縮 */
