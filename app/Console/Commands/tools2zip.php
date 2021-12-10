@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\BookTools;
 use Illuminate\Console\Command;
+use Log;
 
 class tools2zip extends Command
 {
@@ -34,9 +35,12 @@ class tools2zip extends Command
         foreach($paths as $filename)
         {
             if(is_dir($filename) === false) {
-                \Log::info("ディレクトではないのでスキップ[{$filename}]");
+                Log::info("ディレクトではないのでスキップ[{$filename}]");
                 continue;
             }
+			if ($filename == "." || $filename == "..") {
+				continue;
+			}
             $this->info($filename);
             $this->line(" -> [$filename] is directory");
             BookTools::deleteUnneededFile($filename);
