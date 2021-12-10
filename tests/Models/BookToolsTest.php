@@ -7,6 +7,10 @@ use Tests\TestCase;
 
 class BookToolsTest extends TestCase
 {
+    /**
+     * @return void
+     * @noinspection NonAsciiCharacters
+     */
     public function test__必要があればファイル名変更()
 	{
 		$filename ="/FC2 PPV 2240112.mp4";
@@ -23,12 +27,20 @@ class BookToolsTest extends TestCase
 		$this->assertEquals("./FC2-PPV-1268153-1.mp4", $res);
 	}
 
+    /**
+     * @return void
+     * @noinspection NonAsciiCharacters
+     */
     public function test__ファイル名変更()
     {
         $res = Booktools::converOutputZipFilename("[hoge] fuga.zip");
         $this->assertEquals("[hoge]fuga.zip", $res);
     }
 
+    /**
+     * @return void
+     * @noinspection NonAsciiCharacters
+     */
     public function test__ファイル名ソート()
 	{
 		$files = [
@@ -42,7 +54,7 @@ class BookToolsTest extends TestCase
 			'b',
 			'a',
 		], $res);
-		
+
 		$files = [
 			'3',
 			'2',
@@ -56,6 +68,10 @@ class BookToolsTest extends TestCase
 		], $res);
 	}
 
+    /**
+     * @return void
+     * @noinspection NonAsciiCharacters
+     */
     public function test__ファイル名ソート_週間アスキー()
 	{
 		$files = [
