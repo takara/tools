@@ -59,3 +59,5 @@ ADD server_key.tar.gz /etc/ssh
 COPY authorized_keys /var/www/.ssh/
 RUN chown -R www-data /var/www/.ssh/ && \
 	chmod -R og-rwx /var/www/.ssh/
+RUN apt-get install -y nginx
+COPY default.conf /etc/nginx/conf.d/
