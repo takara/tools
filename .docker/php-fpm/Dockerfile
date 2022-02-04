@@ -61,3 +61,8 @@ RUN chown -R www-data /var/www/.ssh/ && \
 	chmod -R og-rwx /var/www/.ssh/
 RUN apt-get install -y nginx
 COPY default.conf /etc/nginx/conf.d/
+COPY xdebug.ini /usr/local/etc/php/conf.d/
+RUN touch /usr/local/etc/php/php.ini
+RUN chown www-data.www-data /var/www
+#RUN chmod -R 777 /var/www
+#RUN chmod -R 700 /var/www/.ssh

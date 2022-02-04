@@ -1,5 +1,6 @@
 FROM  nginx:latest
 
 
-ADD tools.conf /etc/nginx/conf.d/default.conf
+ADD default.conf /etc/nginx/conf.d
+ADD *.pem /etc/nginx/cert/
 

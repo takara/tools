@@ -6,8 +6,10 @@ services:
     container_name: nginx
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - .:/var/www/tools
+#    restart: always
   tools:
     build: .docker/php-fpm
     container_name: tools
@@ -15,3 +17,4 @@ services:
       - .:/var/www/tools
     ports:
       - 202:22
+    restart: always
