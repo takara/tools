@@ -74,6 +74,7 @@ class Twitter
 	public function getLikingUsers(string $id)
 	{
 		$param = [];
+		$res = $this->connection->setApiVersion("2");
 		$res = $this->connection->get("tweets/{$id}/liking_users", $param);
 		$ret = [];
 		foreach ($res->data as $data) {
