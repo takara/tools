@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Abraham\TwitterOAuth\TwitterOAuth;
 
-class Twitter 
+class Twitter
 {
 	protected $consumer_key = null;
 	protected $consumer_key_sercret = null;
@@ -40,7 +40,7 @@ class Twitter
 		$res = $this->connection->get("users/lookup", $param);
 		return $res;
 	}
- 
+
 	/**
 	 * ユーザーの良いね取得
 	 */
@@ -73,7 +73,9 @@ class Twitter
 	 */
 	public function getLikingUsers(string $id)
 	{
-		$param = [];
+        $client = new \Google_Client();
+
+        $param = [];
 		$res = $this->connection->setApiVersion("2");
 		$res = $this->connection->get("tweets/{$id}/liking_users", $param);
 		$ret = [];

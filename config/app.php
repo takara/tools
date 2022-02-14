@@ -236,9 +236,16 @@ return [
 		'Goutte' => Weidner\Goutte\GoutteFacade::class,
     ],
     // switchbot.token
-	'switchbot' => [
-		'token' => env('SWITCH_BOT_TOKEN', 'abc'),
-		'thermometer_id' => env('HERMOMETER_ID', 'abc'),
-		'aircon_id'      => env('AIRCON_ID', 'abc'),
-	],
+    'switchbot' => [
+        'token'          => env('SWITCH_BOT_TOKEN', ''),
+        'thermometer_id' => env('HERMOMETER_ID', ''),
+        'aircon_id'      => env('AIRCON_ID', ''),
+    ],
+    // google spreadsheet
+    'spreadsheet' => [
+        'client_id'         => env('CLIENT_ID', ''),
+        'client_email'      => env('CLIENT_EMAIL', ''),
+        'signing_key'       => env('SIGNING_KEY', ''),
+        'signing_algorithm' => env('SIGNING_ALGORITHM', ''),
+    ],
 ];

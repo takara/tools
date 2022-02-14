@@ -2,17 +2,28 @@
 
 namespace Tests;
 
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use App\Console\Kernel;
+use Exception;
+use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
+
+    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+
+        $app = require __DIR__.'/../bootstrap/app.php';
+        $app->make(Kernel::class)->bootstrap();
+    }
 
     /**
      * @param $data
      * @param string $path
      * @param bool $needField
      * @return array|mixed
+     * @throws Exception
      */
     protected function extract($data, string $path, bool $needField = true)
     {
@@ -21,9 +32,9 @@ abstract class TestCase extends BaseTestCase
         }
         $paths = explode('.',$path);
         $ret = [];
-        foreach ($paths as $cidx => $cur) {
+        foreach ($paths as $curIdx =>$cur) {
             // フィールド複数指定
-            if (preg_match("/\(([A-Za-z0-9_\|]+)\)/", $cur, $match)) {
+            if (preg_match("/\(([A-Za-z0-9_|]+)\)/", $cur, $match)) {
                 $fields = explode("|", $match[1]);
                 foreach ($fields as $field) {
                     if ($needField) {
@@ -77,7 +88,7 @@ abstract class TestCase extends BaseTestCase
             }
             // n兼レコード指定
             if ($cur == '{n}') {
-                $npath = implode('.',array_slice($paths, $cidx+1));
+                $npath = implode('.',array_slice($paths, $curIdx+1));
                 foreach ($data as $row) {
                     $ret[] = $this->extract($row, $npath, $needField);
                 }
@@ -95,9 +106,9 @@ abstract class TestCase extends BaseTestCase
                 } else if (is_array($data)) {
                     foreach ($data as $idx => $value) {
                         if ($needField) {
-                            $ret[$idx] = $data[$idx];
+                            $ret[$idx] = $value;
                         } else {
-                            $ret = $data[$idx];
+                            $ret = $value;
                         }
                     }
                 }

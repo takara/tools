@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "459d0c9b5e0ec2e3883509eb79f2b4bc",
+    "content-hash": "e371f957d95053a36fd75857de5a658e",
     "packages": [
         {
             "name": "abraham/twitteroauth",
@@ -1819,12 +1819,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "Google\\": "src/"
-                },
                 "files": [
                     "src/aliases.php"
                 ],
+                "psr-4": {
+                    "Google\\": "src/"
+                },
                 "classmap": [
                     "src/aliases.php"
                 ]
