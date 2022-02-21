@@ -9,7 +9,7 @@ services:
       - "443:443"
     volumes:
       - .:/var/www/tools
-#    restart: always
+    restart: always
   tools:
     build: .docker/php-fpm
     container_name: tools

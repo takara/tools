@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use Exception;
 use Google_Client;
 use Google_Service_Sheets;
+use Google_Service_Sheets_BatchUpdateSpreadsheetRequest;
+use Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest;
 use Illuminate\Config\Repository;
 
 /**
@@ -20,6 +23,9 @@ class Spreadsheet
      * @var
      */
     protected $client;
+
+    protected $service = null;
+
     public function __construct()
     {
         /**
@@ -43,6 +49,15 @@ class Spreadsheet
         $this->client->useApplicationDefaultCredentials();
     }
 
+    public function getService(): Google_Service_Sheets
+    {
+        if (is_null($this->service)) {
+            $this->service = new Google_Service_Sheets($this->client);
+        }
+
+        return $this->service;
+    }
+
     public static function getInstance(): self
     {
         if (is_null(static::$instance)) {
@@ -50,7 +65,7 @@ class Spreadsheet
         }
         return static::$instance;
     }
-
+/*
     public function getSheet()
     {
         $sheet = new Google_Service_Sheets($this->client);
@@ -60,5 +75,96 @@ class Spreadsheet
         $values = $response->getValues();
 
         return $values;
+    }
+*/
+    /**
+     * @throws Exception
+     */
+    public function getCreateTodayParam(): array
+    {
+        /**
+         * @var $config Repository
+         */
+        $config            = app('config');
+        $fromSpreadSheetId = $config->get('app.spreadsheet.from_spread_sheet_id');
+        $fromSheetIdList   = $config->get('app.spreadsheet.from_sheet_id');
+        $sheetTitle        = DatetimeUtil::now()->format('m/d');
+        $toSpreadSheetId   = $config->get('app.spreadsheet.to_spread_sheet_id');
+        $weekDay           = DatetimeUtil::now()->format('w');
+        $fromSheetId       = $fromSheetIdList[$weekDay];
+        return [
+            'fromSpreadSheetId' => $fromSpreadSheetId,
+            'fromSheetId'       => $fromSheetId,
+            'sheetTitle'        => $sheetTitle,
+            'toSpreadSheetId'   => $toSpreadSheetId,
+        ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function createTodayActivity()
+    {
+        $service           = $this->getService();
+        $param             = $this->getCreateTodayParam();
+        $fromSpreadSheetId = $param['fromSpreadSheetId'];
+        $fromSheetId       = $param['fromSheetId'];
+        $sheetTitle        = $param['sheetTitle'];
+        $toSpreadSheetId   = $param['toSpreadSheetId'];
+
+        $sheetId = $this->copySheet($fromSpreadSheetId, $fromSheetId, $sheetTitle, $toSpreadSheetId);
+
+        $rowData = [
+            "values" => [
+                ["userEnteredValue" => [ "stringValue" => ""] ],
+                ["userEnteredValue" => [ "stringValue" => ""] ],
+                ["userEnteredValue" => [ "stringValue" => ""] ],
+            ]
+        ];
+        $body = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
+            'requests' => [
+                'updateCells' => [
+                    "start" => [
+                        'sheetId' => $sheetId,
+                        "rowIndex" => 1,
+                        "columnIndex" => 1,
+                    ],
+                    "rows" => array_fill(0, 36, $rowData),
+                    'fields' => 'userEnteredValue',
+                ],
+            ]
+        ]);
+        $service->spreadsheets->batchUpdate($toSpreadSheetId, $body);
+    }
+
+    public function copySheet(string $fromSpreadSheetId, string $fromSheetId, string $sheetTitle, string $toSpreadSheetId = null): int
+    {
+        if (is_null($toSpreadSheetId)) {
+            $toSpreadSheetId = $fromSpreadSheetId;
+        }
+        $service = $this->getService();
+        $toSpreadsheet = new Google_Service_Sheets_CopySheetToAnotherSpreadsheetRequest();
+        $toSpreadsheet->setDestinationSpreadsheetId($toSpreadSheetId);
+        $response = $service->spreadsheets_sheets
+            ->copyTo(
+                $fromSpreadSheetId,
+                $fromSheetId,
+                $toSpreadsheet
+            );
+        $toSheetId = $response->getSheetId();
+        $body = new Google_Service_Sheets_BatchUpdateSpreadsheetRequest([
+            'requests' => [
+                'updateSheetProperties' => [
+                    'properties' => [
+                        'sheetId' => $toSheetId,
+                        'title'   => $sheetTitle,
+                        'index'   => 0,
+                    ],
+                    'fields' => 'title,index',
+                ],
+            ]
+        ]);
+        $service->spreadsheets->batchUpdate($toSpreadSheetId, $body);
+        return $toSheetId;
     }
 }

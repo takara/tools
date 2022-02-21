@@ -247,5 +247,17 @@ return [
         'client_email'      => env('CLIENT_EMAIL', ''),
         'signing_key'       => env('SIGNING_KEY', ''),
         'signing_algorithm' => env('SIGNING_ALGORITHM', ''),
+
+        'from_spread_sheet_id'  => env('FROM_SPREAD_SHEET_ID', ''),
+        'from_sheet_id'  => [
+            env('FROM_SHEET_ID_SUN', ''),
+            env('FROM_SHEET_ID_MON', ''),
+            env('FROM_SHEET_ID_TUE', ''),
+            env('FROM_SHEET_ID_WED', ''),
+            env('FROM_SHEET_ID_THU', ''),
+            env('FROM_SHEET_ID_FRI', ''),
+            env('FROM_SHEET_ID_SAT', ''),
+        ],
+        'to_spread_sheet_id'  => env('TO_SPREAD_SHEET_ID', ''),
     ],
 ];

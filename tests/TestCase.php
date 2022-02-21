@@ -3,6 +3,7 @@
 namespace Tests;
 
 use App\Console\Kernel;
+use App\Models\DatetimeUtil;
 use Exception;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
@@ -39,13 +40,13 @@ abstract class TestCase extends BaseTestCase
                 foreach ($fields as $field) {
                     if ($needField) {
                         if (is_object($data)) {
-                            $ret[$field] = $data->$field ?? "undefined propaty $field";
+                            $ret[$field] = $data->$field ?? "undefined property $field";
                         } else {
                             $ret[$field] = $data[$field] ?? "undefined $field";
                         }
                     } else {
                         if (is_object($data)) {
-                            $ret[] = $data->$field ?? "undefined propaty $field";
+                            $ret[] = $data->$field ?? "undefined property $field";
                         } else {
                             $ret[] = $data[$field] ?? "undefined $field";
                         }
@@ -88,9 +89,9 @@ abstract class TestCase extends BaseTestCase
             }
             // n兼レコード指定
             if ($cur == '{n}') {
-                $npath = implode('.',array_slice($paths, $curIdx+1));
+                $nPath = implode('.',array_slice($paths, $curIdx+1));
                 foreach ($data as $row) {
-                    $ret[] = $this->extract($row, $npath, $needField);
+                    $ret[] = $this->extract($row, $nPath, $needField);
                 }
                 break;
             }
@@ -118,5 +119,10 @@ abstract class TestCase extends BaseTestCase
             throw new Exception("未対応(path=$path)");
         }
         return $ret;
+    }
+
+    protected function setTestDateTime(string $datetime)
+    {
+        DatetimeUtil::setDatetime($datetime);
     }
 }
