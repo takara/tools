@@ -18,7 +18,7 @@ class rezip extends Command
      *
      * @var string
      */
-    protected $signature = 'tools:rezip {--a|norealdir : ディレクトリ名を書庫名に使わない} {--c|norename : リネーム無し} {paths*}';
+    protected $signature = 'tools:rezip {--a|norealdir : ディレクトリ名を書庫名に使わない} {--f|flatjpeg : jpegのファイル名をフラットにする} {--c|norename : リネーム無し} {paths*}';
 
     /**
      * The console command description.
@@ -42,18 +42,23 @@ class rezip extends Command
         $unzip_cmd		 = BookTools::getSetting("unzip_cmd","unzip");
         $unrar_cmd		 = BookTools::getSetting("unrar_cmd","unrar");
         $norealdir       = $this->option("norealdir");
+        $flat            = $this->option("flatjpeg");
+		if ($flat) {
+			$norename = true;
+		}
         foreach($paths as $filename)
         {
-			\Log::info(__METHOD__."():".__LINE__.":$filename");
             $uncompress=FALSE;
             $uncompresscmd="";
             // 作業ディレクトリが残っている？
             if(file_exists($tmpdir))
             {
                 \Log::info("作業ディレクトリ残っているため、削除");
-				BookTools::exec("rm -rf '$tmpdir'");
-				BookTools::exec("mkdir '$tmpdir'");
-                $tmpdir .= "/";
+				BookTools::exec("rm -rf '$tmpdir'",['log'=>false]);
+				BookTools::exec("mkdir '$tmpdir'",['log'=>false]);
+				if (substr($tmpdir, -1) != "/" ) {
+					$tmpdir .= "/";
+				}
             }
             $this->line("[$filename]");
 
@@ -75,7 +80,7 @@ class rezip extends Command
 
                      -q  解凍時の進捗ダイアログを表示しません。
                 */
-                $uncompresscmd="{$arcive_exe_path}{$unrar_cmd} e '{$filename}' {$tmpdir}/ ";
+                $uncompresscmd="{$arcive_exe_path}{$unrar_cmd} x '{$filename}' {$tmpdir} ";
             }
 
             /* ZIP */
@@ -108,7 +113,6 @@ class rezip extends Command
             /* 解凍 */
             if($uncompresscmd)
             {
-                $this->line(" ->$uncompresscmd");
 				BookTools::exec("{$uncompresscmd}");
                 $uncompress=TRUE;
 
@@ -117,28 +121,24 @@ class rezip extends Command
                     $ext = strtolower(substr($file, -4));
                     if (in_array($ext, ['.wmv', '.mp4', '.mpg', '.avi', '.m4v'])) {
                         $this->warn("動画ファイル[$file]");
-                        $system = "mv {$tmpdir}/$file .";
+                        $system = "mv '{$tmpdir}$file' .";
 						BookTools::exec($system);
                         $uncompress=false;
                     }
                 }
                 closedir($dh);
-                if(FALSE)
-                {
-                    // UTF8へ変換
-                    $system="convmv -f utf-8 -t cp932 \"{$tmpdir}\"/* --notest";
-					BookTools::exec("{$system}");
-                }
-                $this->line(" ->rename");
-				if (!$norename) {
+                $this->line(" -> rename");
+				if ($norename === false) {
 					BookTools::renameCode($tmpdir);
+				}
+				if ($flat) {
+					BookTools::flatjpeg($tmpdir);
 				}
             }
 
             /* 圧縮 */
             if($uncompress)
             {
-                \Log::info(__METHOD__."():".__LINE__.":");
                 $real_dir=str_replace(array("\r","\n"),"",shell_exec("ls {$tmpdir}"));
                 if(is_dir("{$tmpdir}/$real_dir"))
                 {
@@ -167,7 +167,6 @@ class rezip extends Command
                 }
                 BookTools::deleteUnneededFile("{$deldir}");
                 $system = "zip -9 -j '{$zip_filename}' '{$tmpdir}/{$real_dir}'/*";
-                $this->line(" ->$system");
 				BookTools::exec("{$system}");
                 $system="rm -rf \"{$tmpdir}\"";
 				BookTools::exec("{$system}");

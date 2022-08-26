@@ -28,15 +28,7 @@ class flatjpeg extends Command
      */
     public function handle() : int
     {
-		$res = BookTools::findFiles();
-		foreach ($res as $filename) {
-			$info = pathinfo($filename);
-			if (!isset($info['extension']) || strtolower($info['extension']) != "jpg") {
-				continue;
-			}
-			$toname = str_replace("/", "_", $filename);
-			print "mv '$filename' '$toname'\n";
-		}
+		BookTools::flatjpeg();
         return 0;
     }
 }

@@ -43,6 +43,26 @@ class BookTools
      */
     protected static $cmd = null;
 
+	/**
+	 * jpegファイルをフラットなファイル名にする
+	 */
+    public static function flatjpeg($path = ".")
+	{
+		if (substr($path, -1) != "/") {
+			$path .= "/";
+		}
+		$res = static::findFiles($path);
+		foreach ($res as $filename) {
+			$info = pathinfo($filename);
+			if (!isset($info['extension']) || strtolower($info['extension']) != "jpg") {
+				continue;
+			}
+			$toname = str_replace("/", "_", $filename);
+			$system="mv '$filename' '$path$toname'";
+			static::exec("{$system}", ['log' => false]);
+		}
+	}
+
     public static function findFiles($path = ".") : array
 	{
 		$ret = [];
@@ -167,7 +187,11 @@ class BookTools
                         $filename = "{$dir}{$file}";
                     }
                     echo "   削除 {$filename}\n";
-                    unlink("{$filename}");
+					if (is_dir($filename)) {
+						//rmdir("{$filename}");
+					} else {
+						unlink("{$filename}");
+					}
                 }
             }
             closedir($dh);
@@ -567,6 +591,7 @@ class BookTools
         }
         return ($ret);
     }
+
     public static function moveTrash(string $filename)
     {
         if (file_exists($filename) === false) {
@@ -587,6 +612,12 @@ class BookTools
 
     }
 
+    public static function notice(string $message="")
+    {
+        $cmd = "osascript -e 'display notification \"hogehoge\" with title \"Fuga\"'";
+        static::exec($cmd, ['log' => false]);
+
+    }
     public static function getHome() :string
     {
         return env("HOME");
