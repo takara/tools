@@ -18,3 +18,5 @@ services:
     ports:
       - 202:22
     restart: always
+    environment:
+      TZ: Asia/Tokyo

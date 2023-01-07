@@ -8,8 +8,6 @@ use Tests\TestCase;
 class BookToolsTest extends TestCase
 {
     /**
-     * @return void
-     * @noinspection NonAsciiCharacters
      */
     public function test__必要があればファイル名変更()
 	{

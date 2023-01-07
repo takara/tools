@@ -32,11 +32,11 @@ class thermometer extends Command
 		$res = SwitchBotAPI::getInstance()->getStatus($id);
 		$temp = $res['body']['temperature'];
 		$humidity = $res['body']['humidity'];
-		\Log::info("温度:[$temp]");
-		\Log::info("湿度:[$humidity]");
+		\Log::debug("温度:[$temp]");
+		\Log::debug("湿度:[$humidity]");
 		$di = 0.81 * $temp +  0.01 * $humidity * ( 0.99 * $temp - 14.3) + 46.3;
 		$str = $this->getDIString($di);
-		\Log::info("不快指数:[$di][$str]");
+		\Log::debug("不快指数:[$di][$str]");
 		//\Log::debug(print_r($res, true));
 		$temp = (int)($temp * 10);
 		print $temp;

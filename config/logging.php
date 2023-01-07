@@ -37,7 +37,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['daily'],
+            'channels' => ['daily','debug','warning'],
             'ignore_exceptions' => false,
         ],
 
@@ -50,10 +50,24 @@ return [
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
-            'level' => env('LOG_LEVEL', 'info'),
+            'level' => 'info',
             'days' => 14,
         ],
 
+        'debug' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/debug.log'),
+            'level' => 'debug',
+            'days' => 14,
+        ],
+
+        'warning' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/warning.log'),
+            'level' => 'warning',
+            'days' => 14,
+        ],
+		
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

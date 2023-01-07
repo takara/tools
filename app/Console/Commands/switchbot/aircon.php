@@ -31,7 +31,7 @@ class aircon extends Command
 		$power = $this->argument("power");
 		$onf = \Cache::get("aircon.power");
 		if ($power == $onf) {
-			\Log::info("同じ状態($onf)なので何もしない");
+			\Log::debug("同じ状態($onf)なので何もしない");
 			return 0;
 		}
 		$id = app("config")->get("app.switchbot.aircon_id");
@@ -44,7 +44,7 @@ class aircon extends Command
 		$res = SwitchBotAPI::getInstance()->commands($id, $json);
 		\Cache::put("aircon.power", $power);
 		print_r($res);
-		\Log::info("エアコン状態($power)変更");
+		\Log::debug("エアコン状態($power)変更");
         return 0;
     }
 }
