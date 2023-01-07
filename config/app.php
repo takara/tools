@@ -260,4 +260,7 @@ return [
         ],
         'to_spread_sheet_id'  => env('TO_SPREAD_SHEET_ID', ''),
     ],
+    'rss' => [
+		'url' => env('RSS_URL', ''),
+	],
 ];
