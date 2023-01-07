@@ -10,6 +10,12 @@ services:
     volumes:
       - .:/var/www/tools
     restart: always
+    networks:
+      - local
+    links:
+      - tools:tools
+    extra_hosts:
+      - aaa:127.0.0.1
   tools:
     build: .docker/php-fpm
     container_name: tools
@@ -20,3 +26,12 @@ services:
     restart: always
     environment:
       TZ: Asia/Tokyo
+    networks:
+      local:
+        ipv4_address: 192.168.1.10
+
+# docker network create --driver="bridge" --subnet=192.168.1.0/24 local
+networks:
+  local:
+    external:
+      name: local
