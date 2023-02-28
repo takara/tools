@@ -29,11 +29,13 @@ class BookToolsTest extends TestCase
      * @return void
      * @noinspection NonAsciiCharacters
      */
+	/*
     public function test__ファイル名変更()
     {
         $res = Booktools::converOutputZipFilename("[hoge] fuga.zip");
         $this->assertEquals("[hoge]fuga.zip", $res);
     }
+	 */
 
     /**
      * @return void

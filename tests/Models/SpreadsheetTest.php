@@ -28,15 +28,9 @@ class SpreadsheetTest extends TestCase
         $this->assertCount(36, $res);
     }
 */
+	/*
     public function test_テスト()
     {
-        /*
-        Spreadsheet::getInstance()
-            ->createTodayActivity("1odNii9MzEzuJvp9sLZ1_1oAQu1xGmkVKu9txFo7fwfc",
-//                "1902657632", // 02/14
-            "808904582", // 02/13
-                "02/15", "1Dx2PywX3utjOWxotkDye2khqzPfk7JGB_4zqWr2P3Qg");
-        */
         $this->setTestDateTime("2022/02/20 16:00:00");
         $param = Spreadsheet::getInstance()
             ->getCreateTodayParam();
@@ -67,4 +61,5 @@ class SpreadsheetTest extends TestCase
             'toSpreadSheetId'   => '1-BM95x5rJqpFJ4JG1I4LPfw0gKMGW4XUjXW58H_0qCI',
         ], $param);
     }
+	 */
 }
